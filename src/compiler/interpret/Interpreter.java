@@ -22,7 +22,7 @@ public class Interpreter {
     private List<Instruction> instructionList;
 
     /**
-     * 运行栈
+     * 运行栈,在解释文件中,
      */
     private int[] runtimeStack;
 
@@ -119,8 +119,14 @@ public class Interpreter {
         }
         return true;
     }
-    public void interpret() {
+
+    /**
+     * 解释 目标程序
+     * @throws Exception
+     */
+    public void interpret() throws Exception {
         //初始指针位置
+        Scanner scanner = new Scanner(System.in); //供输入指令RED使用
         currentPosition = 0;
         basePosition = 0;
         top = 0;
@@ -133,6 +139,7 @@ public class Interpreter {
                     currentPosition++;
                     break;
                 }
+                //TODO 涉及到层数的都有问题
                 case LOD: { //LOD t a 将变量值取到栈顶,a为相对地址,t为层数
                     int absolutePosition = getAbsolutePosition(basePosition,instruction.getLayerDiff(),instruction.getThird());
                     runtimeStack[top] = runtimeStack[absolutePosition];
@@ -150,10 +157,10 @@ public class Interpreter {
                     //每个函数块分配的区域，都保存着 1.基地址（分配的区域开始位置）2.调用者的基地址 3.返回地址
                     runtimeStack[top] = top;  //基地址
                     runtimeStack[top+1] = basePosition; //调用者的基地址
-                    runtimeStack[top+2] = currentPosition; //程序执行的 当前地址
+                    runtimeStack[top+2] = currentPosition+1; //程序执行的 当前地址
                     basePosition = top;  //基地址指针改变
                     top = top + 3; // 栈顶指针更新
-                    currentPosition = instruction.getThird(); // 当前位置指针更新
+                    currentPosition = instruction.getThird()-1; // 当前位置指针更新（注意下标）
                     break;
                 }
                 case INT: { //INT 0 a	在运行栈中为被调用的过程开辟a个单元的数据区
@@ -162,12 +169,12 @@ public class Interpreter {
                     break;
                 }
                 case JMP: { //JMP 0 a	无条件跳转至a地址
-                    currentPosition = instruction.getThird();
+                    currentPosition = instruction.getThird()-1;
                     break;
                 }
                 case JPC: { //JPC 0 a	条件跳转，当栈顶值为0，则跳转至a地址，否则顺序执行
                     if (runtimeStack[top-1] == 0) {
-                        currentPosition = instruction.getThird();
+                        currentPosition = instruction.getThird()-1;
                     } else {
                         currentPosition++;
                     }
@@ -198,16 +205,14 @@ public class Interpreter {
                     break;
                 }
                 case RED: { //RED 0 0	从命令行读入一个输入置于栈顶
-                    Scanner scanner = new Scanner(System.in);
                     int value = scanner.nextInt();
                     runtimeStack[top] = value;
                     top++;
                     currentPosition++;
-                    scanner.close();
                     break;
                 }
                 case WRT: { //WRT 0 0	栈顶值输出至屏幕并换行
-                    int value = runtimeStack[top];
+                    int value = runtimeStack[top-1];
                     System.out.println(value);
                     currentPosition++;
                     break;
@@ -220,9 +225,9 @@ public class Interpreter {
                 }
             }
         }
+        scanner.close();
         return;
     }
-
     /**
      * 根据层差、相对位置获得绝对位置
      * @param layerDiff
@@ -232,6 +237,7 @@ public class Interpreter {
     private int getAbsolutePosition(int basePosition, int layerDiff, int relativePosition) {
         while (layerDiff > 0) {
             basePosition = runtimeStack[basePosition+1];
+            layerDiff--;
         }
         return basePosition + relativePosition;
     }

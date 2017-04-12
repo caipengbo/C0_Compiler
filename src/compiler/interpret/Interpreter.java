@@ -159,7 +159,6 @@ public class Interpreter {
                     runtimeStack[top+1] = basePosition; //调用者的基地址
                     runtimeStack[top+2] = currentPosition+1; //程序执行的 当前地址
                     basePosition = top;  //基地址指针改变
-                    top = top + 3; // 栈顶指针更新
                     currentPosition = instruction.getThird()-1; // 当前位置指针更新（注意下标）
                     break;
                 }

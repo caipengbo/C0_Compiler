@@ -1,6 +1,0 @@
-INT 0 5
-LIT 0 66
-WRT 0 0
-RED 0 0
-RED 0 0
-WRT 0 0

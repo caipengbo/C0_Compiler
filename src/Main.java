@@ -5,8 +5,8 @@ public class Main {
     public static void main(String[] args) {
 
         Interpreter interpreter = new Interpreter();
-        interpreter.open("src/factorial.txt");
-        //interpreter.printInstructionList();
+        interpreter.open("src/while.txt");
+        interpreter.printInstructionList();
         //File file  = new File("src/out.txt");
         //interpreter.writeToFile(file);
         try {
@@ -15,7 +15,5 @@ public class Main {
             e.printStackTrace();
             System.out.println("目标代码有问题");
         }
-
-
     }
 }

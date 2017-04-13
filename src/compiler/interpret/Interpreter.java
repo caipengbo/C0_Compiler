@@ -63,8 +63,8 @@ public class Interpreter {
             while((line = bufferedReader.readLine())!=null) {
                 String[] str = line.split(" ");
                 Instruction instruction = new Instruction();
-                instruction.setName(InstructionType.valueOf(str[0]));
-                instruction.setLayerDiff(Integer.parseInt(str[1]));
+                instruction.setName(InstructionType.valueOf(str[0].toUpperCase()));
+                instruction.setLayer(Integer.parseInt(str[1]));
                 instruction.setThird(Integer.parseInt(str[2]));
                 instructionList.add(instruction);
             }
@@ -130,6 +130,7 @@ public class Interpreter {
         currentPosition = 0;
         basePosition = 0;
         top = 0;
+        //TODO 为什么是循环输入
         while (currentPosition < instructionList.size()) {
             Instruction instruction = instructionList.get(currentPosition);
             switch (instruction.getName()) {
@@ -139,16 +140,15 @@ public class Interpreter {
                     currentPosition++;
                     break;
                 }
-                //TODO 涉及到层数的都有问题
                 case LOD: { //LOD t a 将变量值取到栈顶,a为相对地址,t为层数
-                    int absolutePosition = getAbsolutePosition(basePosition,instruction.getLayerDiff(),instruction.getThird());
+                    int absolutePosition = getAbsolutePosition(basePosition,instruction.getLayer(),instruction.getThird());
                     runtimeStack[top] = runtimeStack[absolutePosition];
                     top++;
                     currentPosition++;
                     break;
                 }
                 case STO: { //STO t a 将栈顶内容送入某变量单元中，a为相对地址，t为层数
-                    int absolutePosition = getAbsolutePosition(basePosition,instruction.getLayerDiff(),instruction.getThird());
+                    int absolutePosition = getAbsolutePosition(basePosition,instruction.getLayer(),instruction.getThird());
                     runtimeStack[absolutePosition] = runtimeStack[top-1];
                     currentPosition++;
                     break;
@@ -223,21 +223,24 @@ public class Interpreter {
                     break;
                 }
             }
+            if(top > MAX_SIZE) {
+                throw new Exception("栈溢出！！");
+            }
         }
         scanner.close();
         return;
     }
     /**
-     * 根据层差、相对位置获得绝对位置
-     * @param layerDiff
+     * 根据层数、相对位置获得绝对位置
+     * @param layer 0最外层（全局变量）  1当前层
      * @param relativePosition
      * @return
      */
-    private int getAbsolutePosition(int basePosition, int layerDiff, int relativePosition) {
-        while (layerDiff > 0) {
-            basePosition = runtimeStack[basePosition+1];
-            layerDiff--;
+    private int getAbsolutePosition(int basePosition, int layer, int relativePosition) {
+        if (layer == 0) {
+            return relativePosition;
+        } else {
+            return basePosition + relativePosition;
         }
-        return basePosition + relativePosition;
     }
 }

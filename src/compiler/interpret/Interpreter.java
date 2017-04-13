@@ -63,7 +63,7 @@ public class Interpreter {
             while((line = bufferedReader.readLine())!=null) {
                 String[] str = line.split(" ");
                 Instruction instruction = new Instruction();
-                instruction.setName(InstructionType.valueOf(str[0]));
+                instruction.setName(InstructionType.valueOf(str[0].toUpperCase()));
                 instruction.setLayerDiff(Integer.parseInt(str[1]));
                 instruction.setThird(Integer.parseInt(str[2]));
                 instructionList.add(instruction);
@@ -130,6 +130,7 @@ public class Interpreter {
         currentPosition = 0;
         basePosition = 0;
         top = 0;
+        //TODO 为什么是循环输入
         while (currentPosition < instructionList.size()) {
             Instruction instruction = instructionList.get(currentPosition);
             switch (instruction.getName()) {
@@ -139,7 +140,6 @@ public class Interpreter {
                     currentPosition++;
                     break;
                 }
-                //TODO 涉及到层数的都有问题
                 case LOD: { //LOD t a 将变量值取到栈顶,a为相对地址,t为层数
                     int absolutePosition = getAbsolutePosition(basePosition,instruction.getLayerDiff(),instruction.getThird());
                     runtimeStack[top] = runtimeStack[absolutePosition];
@@ -222,6 +222,9 @@ public class Interpreter {
                     basePosition = runtimeStack[basePosition+1];
                     break;
                 }
+            }
+            if(top > MAX_SIZE) {
+                throw new Exception("栈溢出！！");
             }
         }
         scanner.close();

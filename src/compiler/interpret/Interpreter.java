@@ -29,9 +29,9 @@ public class Interpreter {
     /**
      * 位置指针
      */
-    private int currentPosition;
-    private int top;
-    private int basePosition;
+    private int currentPosition; //当前程序位置
+    private int top; //栈顶指针
+    private int basePosition;   //每个函数的初始位置
 
     public Interpreter() {
         runtimeStack = new int[MAX_SIZE];
@@ -46,37 +46,26 @@ public class Interpreter {
     /**
      * 打开解释程序文件,为指令列表赋值
      * @param pathname  解释程序文件(.itp)的路径
+     * @throws Exception
      * @return 失败返回false
      */
-    public boolean open(String pathname ) {
+    public void openFile(String pathname ) throws Exception {
         File file = new File(pathname);
         BufferedReader bufferedReader;
-        try {
-            bufferedReader = new BufferedReader(new FileReader(file));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            return false;
-        }
+        bufferedReader = new BufferedReader(new FileReader(file));
         String line;
         instructionList = new ArrayList<>();
-        try {
-            while((line = bufferedReader.readLine())!=null) {
-                String[] str = line.split(" ");
-                Instruction instruction = new Instruction();
-                instruction.setName(InstructionType.valueOf(str[0].toUpperCase()));
-                instruction.setLayer(Integer.parseInt(str[1]));
-                instruction.setThird(Integer.parseInt(str[2]));
-                instructionList.add(instruction);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
+        while((line = bufferedReader.readLine())!=null) {
+            String[] str = line.split(" ");
+            Instruction instruction = new Instruction();
+            instruction.setName(InstructionType.valueOf(str[0].toUpperCase()));
+            instruction.setLayer(Integer.parseInt(str[1]));
+            instruction.setThird(Integer.parseInt(str[2]));
+            instructionList.add(instruction);
         }
         if (instructionList.size() > MAX_SIZE) {
-            System.out.println("解释程序过长！");
-            return false;
+           throw new Exception("解释程序过长！");
         }
-        return true;
     }
 
     /**
@@ -130,7 +119,6 @@ public class Interpreter {
         currentPosition = 0;
         basePosition = 0;
         top = 0;
-        //TODO 为什么是循环输入
         while (currentPosition < instructionList.size()) {
             Instruction instruction = instructionList.get(currentPosition);
             switch (instruction.getName()) {

@@ -55,6 +55,7 @@ public class Interpreter {
         bufferedReader = new BufferedReader(new FileReader(file));
         String line;
         instructionList = new ArrayList<>();
+<<<<<<< HEAD
         while((line = bufferedReader.readLine())!=null) {
             String[] str = line.split(" ");
             Instruction instruction = new Instruction();
@@ -62,6 +63,20 @@ public class Interpreter {
             instruction.setLayer(Integer.parseInt(str[1]));
             instruction.setThird(Integer.parseInt(str[2]));
             instructionList.add(instruction);
+=======
+        try {
+            while((line = bufferedReader.readLine())!=null) {
+                String[] str = line.split(" ");
+                Instruction instruction = new Instruction();
+                instruction.setName(InstructionType.valueOf(str[0].toUpperCase()));
+                instruction.setLayerDiff(Integer.parseInt(str[1]));
+                instruction.setThird(Integer.parseInt(str[2]));
+                instructionList.add(instruction);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+>>>>>>> fbd6473bab90808cb056c6d7f858f19bfbf04442
         }
         if (instructionList.size() > MAX_SIZE) {
            throw new Exception("解释程序过长！");
@@ -119,6 +134,7 @@ public class Interpreter {
         currentPosition = 0;
         basePosition = 0;
         top = 0;
+        //TODO 为什么是循环输入
         while (currentPosition < instructionList.size()) {
             Instruction instruction = instructionList.get(currentPosition);
             switch (instruction.getName()) {

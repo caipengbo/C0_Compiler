@@ -1,7 +1,5 @@
-<<<<<<< HEAD
 INT 0 3
 RED 0 0
-=======
 INT 0 2
 CAL 0 16
 RET 0 0
@@ -24,6 +22,5 @@ LIT 0 0
 STO 0 1
 CAL 0 3
 LOD 1 2
->>>>>>> fbd6473bab90808cb056c6d7f858f19bfbf04442
 WRT 0 0
 RET 0 0

@@ -21,10 +21,5 @@ RED 0 0
 STO 0 3
 INT 0 1
 CAL 0 2
-<<<<<<< HEAD
 LOD 0 5
-=======
-LOD 0 4
 WRT 0 0
-RET 0 0
->>>>>>> fbd6473bab90808cb056c6d7f858f19bfbf04442

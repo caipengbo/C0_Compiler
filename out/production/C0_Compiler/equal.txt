@@ -18,4 +18,3 @@ STO 0 4
 INT 0 1
 CAL 0 2
 WRT 0 0
-RET 0 0

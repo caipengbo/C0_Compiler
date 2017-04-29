@@ -6,8 +6,26 @@ package compiler.lexer;
  * Created by Myth on 4/27/2017.
  */
 public class CharPosition {
-    private int lineNumber; //哪一行
-    private int position; //行内位置
+    private int lineNumber; //哪一行，-1终止
+    private int position; //行内位置, -1终止
+
+    public CharPosition() {}
+
+    public CharPosition(int lineNumber, int position) {
+        this.lineNumber = lineNumber;
+        this.position = position;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof CharPosition)) {
+            return false;
+        }
+        if (((CharPosition) obj).getLineNumber() == lineNumber && ((CharPosition) obj).getPosition() == position) {
+            return true;
+        }
+        return false;
+    }
 
     public int getLineNumber() {
         return lineNumber;

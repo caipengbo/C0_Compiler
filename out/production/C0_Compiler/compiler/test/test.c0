@@ -1,2 +1,5 @@
-0 2 4 6
-abd ef d
+void a()
+{
+    int a,b;
+    a=b;
+}

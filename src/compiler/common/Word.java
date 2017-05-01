@@ -7,7 +7,7 @@ package compiler.common;
  */
 public class Word {
     private Symbol type; //单词的类别
-    private String value; //如果是标识符，存入标识符的名字,如果是数字,存入数字的值（注意转化成int）
+    private String value = " "; //如果是标识符，存入标识符的名字,如果是数字,存入数字的值（注意转化成int）
 
     public Symbol getType() {
         return type;
@@ -23,5 +23,12 @@ public class Word {
 
     public void setValue(String value) {
         this.value = value;
+    }
+
+    @Override
+    public String toString() {
+        return "Word{" + "type=" + type +
+                ", value='" + value + '\'' +
+                '}';
     }
 }

@@ -23,4 +23,5 @@ public enum Symbol {
     whilesym,
     scanfsym,
     printfsym,
+    endsym
 }

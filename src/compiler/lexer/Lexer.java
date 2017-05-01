@@ -1,10 +1,15 @@
 package compiler.lexer;
 
+import compiler.common.Symbol;
+import compiler.common.Word;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Title：词法分析器
@@ -20,8 +25,41 @@ public class Lexer {
     //源代码最大行数
     private static final int MAX_LINE_SIZE = 100;
 
-    //终止位置
-    private static final CharPosition CHAR_END_POSITION = new CharPosition(-1,-1);
+    //指针  代表 行(-1代表终止) 、 行内位置(-1代表终止)
+    private int lineNumber;
+    private int position;
+
+    private String currentLine; //当前代码行
+    private Map<String,Symbol> keywords; //关键字
+    private Map<String,Symbol> singleWords; //单字符
+    public Lexer() {
+        lineNumber = 0;
+        position = 0;
+        //关键字初始化
+        keywords = new HashMap<>();
+        keywords.put("int",Symbol.intsym);
+        keywords.put("void",Symbol.voidsym);
+        keywords.put("main",Symbol.mainsym);
+        keywords.put("return",Symbol.returnsym);
+        keywords.put("if",Symbol.ifsym);
+        keywords.put("else",Symbol.elsesym);
+        keywords.put("while",Symbol.whilesym);
+        keywords.put("scanf",Symbol.scanfsym);
+        keywords.put("printf",Symbol.printfsym);
+        //单字符符号
+        singleWords = new HashMap<>();
+        singleWords.put("+",Symbol.plus);
+        singleWords.put("-",Symbol.minus);
+        singleWords.put("*",Symbol.multiply);
+        singleWords.put("/",Symbol.divide);
+        singleWords.put("=",Symbol.equal);
+        singleWords.put("(",Symbol.lbracket);
+        singleWords.put(")",Symbol.rbracket);
+        singleWords.put("{",Symbol.lbrace);
+        singleWords.put("}",Symbol.rbrace);
+        singleWords.put(",",Symbol.comma);
+        singleWords.put(";",Symbol.semicolon);
+    }
 
     public List<String> getSourceCodeLineList() {
         return sourceCodeLineList;
@@ -45,10 +83,15 @@ public class Lexer {
             lineSize = 0;
             throw new Exception("源程序过长！");
         }
+        if (lineSize == 0) {
+            lineSize = 0;
+            throw new Exception("源程序不能为空！");
+        }
+        currentLine = sourceCodeLineList.get(0);
     }
 
     // 前移位置
-    private CharPosition forthPostion(String currentLine,int lineNumber,int position) {
+    private void forth() {
         if (position >= currentLine.length()-1) {
             lineNumber++;
             position = 0;
@@ -56,31 +99,78 @@ public class Lexer {
             position++;
         }
         if (lineNumber >= lineSize) {
-            return new CharPosition(-1,-1);
+            lineNumber = -1;
+            position = -1;
+            return;
         }
-        return new CharPosition(lineNumber,position);
+        currentLine = sourceCodeLineList.get(lineNumber);
     }
     /**
-     * 将源代码转换成符号
-     * @param startPostion 开始分析的字符位置
-     * @return 分析完一个符号后的位置,作为下一次转换的开始位置
+     * 获得一个词
+     * @return 获得的词
      * @throws Exception
      */
-    public CharPosition convertToSymbol(CharPosition startPostion) throws Exception {
-        if (startPostion.equals(CHAR_END_POSITION)) return startPostion; //终止位置，终止
-        int lineNumber = startPostion.getLineNumber();
-        int position = startPostion.getPosition();
-        CharPosition returnPostion = startPostion;
-        String currentLine = sourceCodeLineList.get(lineNumber);
-        //过滤开头空格
-        while (currentLine.charAt(position) == ' ') {
-            returnPostion = forthPostion(currentLine,lineNumber,position);
-            lineNumber = returnPostion.getLineNumber();
-            position = returnPostion.getPosition();
-            currentLine = sourceCodeLineList.get(lineNumber);
+    public Word getWord() throws Exception {
+        Word word = new Word();
+        if (lineNumber ==-1 && position==-1) {
+            word.setType(Symbol.endsym); //终止位置，终止
+            return word;
         }
-        System.out.println(returnPostion +"字符：" + currentLine.charAt(position));
-        returnPostion = forthPostion(currentLine,lineNumber,position);
-        return returnPostion;
+        String wordValue = "";
+        char currentChar = currentLine.charAt(position);
+        //过滤开头空格
+        while (currentChar == ' ') {
+            forth();
+            currentChar = currentLine.charAt(position);
+        }
+        //System.out.println("("+ lineNumber + "," + position +")"+" 字符：" + currentLine.charAt(position));
+        if (currentChar >= 'a'&& currentChar <= 'z')
+        {
+            // 名字或保留字以a..z开头
+            do
+            {
+                wordValue += currentChar;
+                forth();
+                if (lineNumber ==-1 && position==-1) {
+                    word.setType(Symbol.endsym); //终止位置，终止
+                    return word;
+                }
+                currentChar = currentLine.charAt(position);
+            } while (currentChar >= 'a'&&currentChar <= 'z' || currentChar >= '0'&&currentChar <= '9');
+            //是否为关键字
+            if (keywords.containsKey(wordValue)) {
+                word.setType(keywords.get(wordValue));
+            } else {
+                word.setType(Symbol.ident);
+            }
+        } else {
+            /* 检测是否为数字：以0..9开头 */
+            if (currentChar >= '0'&&currentChar <= '9')
+            {
+                do
+                {
+                    wordValue += currentChar;
+                    forth();
+                    if (lineNumber ==-1 && position==-1) {
+                        word.setType(Symbol.endsym); //终止位置，终止
+                        return word;
+                    }
+                    currentChar = currentLine.charAt(position);
+                } while (currentChar >= '0'&&currentChar <= '9'); /* 获取数字的值 */
+                word.setType(Symbol.number);
+            }
+            else {
+                //检测单字符
+                wordValue += currentChar;
+                if (singleWords.containsKey(wordValue)) {
+                    word.setType(singleWords.get(wordValue));
+                } else {
+                    word.setType(Symbol.nul);
+                }
+                forth();
+            }
+        }
+        word.setValue(wordValue);
+        return word;
     }
 }

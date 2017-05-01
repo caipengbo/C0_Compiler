@@ -42,4 +42,9 @@ public class CharPosition {
     public void setPosition(int position) {
         this.position = position;
     }
+
+    @Override
+    public String toString() {
+        return "{" + "line=" + lineNumber + ", position=" + position + '}';
+    }
 }

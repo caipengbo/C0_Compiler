@@ -21,8 +21,11 @@ public class Lexer {
     private static final int MAX_LINE_SIZE = 100;
 
     //终止位置
-    private static final CharPosition END_CHAR_POSITION = new CharPosition(-1,-1);
+    private static final CharPosition CHAR_END_POSITION = new CharPosition(-1,-1);
 
+    public List<String> getSourceCodeLineList() {
+        return sourceCodeLineList;
+    }
     /**
      * 打开原文件，读取每一行原文件存至
      * @param pathname
@@ -44,12 +47,7 @@ public class Lexer {
         }
     }
 
-    /*
-     * 前移位置
-     * @param lineNumber
-     * @param position
-     * @return
-     */
+    // 前移位置
     private CharPosition forthPostion(String currentLine,int lineNumber,int position) {
         if (position >= currentLine.length()-1) {
             lineNumber++;
@@ -69,14 +67,20 @@ public class Lexer {
      * @throws Exception
      */
     public CharPosition convertToSymbol(CharPosition startPostion) throws Exception {
-        if (startPostion.equals(END_CHAR_POSITION)) return startPostion; //终止位置，终止
+        if (startPostion.equals(CHAR_END_POSITION)) return startPostion; //终止位置，终止
         int lineNumber = startPostion.getLineNumber();
         int position = startPostion.getPosition();
-        CharPosition returnPostion;
+        CharPosition returnPostion = startPostion;
         String currentLine = sourceCodeLineList.get(lineNumber);
+        //过滤开头空格
         while (currentLine.charAt(position) == ' ') {
             returnPostion = forthPostion(currentLine,lineNumber,position);
+            lineNumber = returnPostion.getLineNumber();
+            position = returnPostion.getPosition();
+            currentLine = sourceCodeLineList.get(lineNumber);
         }
-
+        System.out.println(returnPostion +"字符：" + currentLine.charAt(position));
+        returnPostion = forthPostion(currentLine,lineNumber,position);
+        return returnPostion;
     }
 }

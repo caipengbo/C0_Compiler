@@ -19,7 +19,7 @@ public class Interpreter {
     /**
      * 将要解释的指令列表
      */
-    private List<Instruction> instructionList;
+    private List<Instruction> instructionList; //下标从零开始（解释程序是从1开始），注意
 
     /**
      * 运行栈,在解释文件中,

@@ -2,7 +2,7 @@ int m;
 int factorial()
 {
     int result;
-    result=1;
+    result=fun2();
     while(m)
     {
         result=result*m;
@@ -10,8 +10,12 @@ int factorial()
         }
     return (result);
 }
+int fun2()
+{
+    return (1);
+}
 void main()
-{ 
+{
     scanf(m);
     printf(factorial());
 }

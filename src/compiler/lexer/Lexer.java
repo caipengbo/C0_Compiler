@@ -132,7 +132,12 @@ public class Lexer {
                 wordValue += currentChar;
                 forth();
                 if (lineNumber ==-1 && position==-1) {
-                    word.setType(Symbol.endsym); //终止位置，终止
+                    if (!("".equals(wordValue))) {
+                        word.setType(Symbol.ident);
+                        word.setValue(wordValue);
+                    } else {
+                        word.setType(Symbol.endsym); //终止位置，终止
+                    }
                     return word;
                 }
                 currentChar = currentLine.charAt(position);

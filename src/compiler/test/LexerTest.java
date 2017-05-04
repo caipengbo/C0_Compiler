@@ -27,7 +27,7 @@ public class LexerTest {
     @Test
     public void getSymbol() throws Exception {
         Lexer lexer = new Lexer();
-        lexer.openFile("src/compiler/test/test.c0"); //注意路径
+        lexer.openFile("src/compiler/test/test.c0");
         Word word = new Word();
         while (word.getType()!= Symbol.endsym) {
             word = lexer.getWord();

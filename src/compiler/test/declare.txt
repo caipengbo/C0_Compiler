@@ -1,0 +1,4 @@
+void fun1()
+void fun2()
+int d,e
+void fun3()

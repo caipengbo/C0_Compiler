@@ -25,6 +25,8 @@ public class Lexer {
     //源代码最大行数
     private static final int MAX_LINE_SIZE = 100;
 
+
+
     //指针  代表 行(-1代表终止) 、 行内位置(-1代表终止)
     private int lineNumber;
     private int position;
@@ -60,7 +62,6 @@ public class Lexer {
         singleWords.put(",",Symbol.comma);
         singleWords.put(";",Symbol.semicolon);
     }
-
     public List<String> getSourceCodeLineList() {
         return sourceCodeLineList;
     }
@@ -177,5 +178,8 @@ public class Lexer {
         }
         word.setValue(wordValue);
         return word;
+    }
+    public String getPosition() {
+        return "(Ln: " + lineNumber + "Col: " + position + ")";
     }
 }

@@ -7,6 +7,7 @@ import compiler.parser.Variable;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Title：
@@ -19,17 +20,18 @@ public class ProgramParserTest {
         ProgramParser programParser = new ProgramParser("src/compiler/test/declare.txt");
         programParser.parse();
         List<Wrong> wrongList = programParser.getWrongList();
-        List<Variable> variableList = programParser.getVariableList();
-        List<Function> functionList = programParser.getFunctionList();
+        Map<String,Variable> variableMap = programParser.getVariableMap();
+        Map<String,Function> functionMap = programParser.getFunctionMap();
         for (Wrong wrong : wrongList) {
             System.out.println(wrong);
         }
-        for (Variable variable : variableList) {
-            System.out.println(variable);
+        for (Map.Entry<String,Variable> entry : variableMap.entrySet()) {
+            System.out.println(entry.getValue());
         }
-        for (Function function : functionList) {
-            System.out.println(function);
+        for (Map.Entry<String,Function> entry : functionMap.entrySet()) {
+            System.out.println(entry.getValue());
         }
+
     }
 
 }

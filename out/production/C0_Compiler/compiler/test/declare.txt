@@ -1,4 +1,9 @@
-void fun1()
+void fun1() {
+    int a;
+}
 void fun2()
-int d,e
-void fun3()
+{
+    int b,c,d,e;
+}
+int e;
+int f,g;

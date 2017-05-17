@@ -1,9 +1,13 @@
 package compiler.test;
 
+import compiler.common.Symbol;
 import compiler.parser.Function;
 import org.junit.Test;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -51,5 +55,17 @@ public class OtherTest {
         function.updateSize(100);
         //testMap.put(1,newString);
     }
-
+    @Test
+    public void test4() {
+        //初始是false
+        boolean[] a = new boolean[20];
+        a[2] = true;
+        for (int i = 0; i < 20; i++) {
+            System.out.println(a[i]);
+        }
+    }
+    @Test
+    public void test5() {
+        System.out.println(Symbol.values().length);
+    }
 }

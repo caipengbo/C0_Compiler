@@ -13,7 +13,7 @@ public class Wrong {
         this.no = no;
         this.info = info;
         this.position = position;
-        System.out.println(this.toString());
+        //System.out.println(this.toString());
     }
     @Override
     public String toString() {

@@ -15,12 +15,12 @@ public class Variable {
         this.address = address;
     }
 
-    public int getAddress() {
-        return address;
+    public String getScope() {
+        return scope;
     }
 
-    public void setAddress(int address) {
-        this.address = address;
+    public int getAddress() {
+        return address;
     }
 
     @Override

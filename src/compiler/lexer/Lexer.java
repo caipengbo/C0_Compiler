@@ -118,6 +118,10 @@ public class Lexer {
             return word;
         }
         String wordValue = "";
+        while (currentLine.length()==0) {  //滤去空行
+            lineNumber++;
+            currentLine = sourceCodeLineList.get(lineNumber);
+        }
         char currentChar = currentLine.charAt(position);
         //过滤开头空格
         while (currentChar == ' ') {

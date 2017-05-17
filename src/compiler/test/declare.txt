@@ -1,9 +1,10 @@
-void fun1() {
-    int a;
-}
-void fun2()
+int fun3()
 {
-    int b,c,d,e;
+    int a;
+    int b;
+    int c;
+    scanf(a);
+    scanf(b);
+    scanf(c);
+    scanf(d);
 }
-int e;
-int f,g;

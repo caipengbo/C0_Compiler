@@ -1,6 +1,7 @@
 package compiler.test;
 
 import compiler.common.Wrong;
+import compiler.interpret.Instruction;
 import compiler.parser.Function;
 import compiler.parser.ProgramParser;
 import compiler.parser.Variable;
@@ -10,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Title：
+ * Title：单元测试程序
  * Description：
  * Created by Myth on 5/11/2017.
  */
@@ -22,6 +23,7 @@ public class ProgramParserTest {
         List<Wrong> wrongList = programParser.getWrongList();
         Map<String,Variable> variableMap = programParser.getVariableMap();
         Map<String,Function> functionMap = programParser.getFunctionMap();
+        List<Instruction> instructionList = programParser.getGeneratedInstructions();
         for (Wrong wrong : wrongList) {
             System.out.println(wrong);
         }
@@ -30,6 +32,9 @@ public class ProgramParserTest {
         }
         for (Map.Entry<String,Function> entry : functionMap.entrySet()) {
             System.out.println(entry.getValue());
+        }
+        for (Instruction instruction : instructionList) {
+            System.out.println(instruction);
         }
 
     }

@@ -1,3 +1,4 @@
+
 int m;
 int factorial()
 {
@@ -8,7 +9,9 @@ int factorial()
         result=result*m;
         m=m-1;
         }
+
     return (result);
+
 }
 void main()
 { 

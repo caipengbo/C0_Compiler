@@ -2,9 +2,13 @@ int fun3()
 {
     int a;
     int b;
-    int c;
-    scanf(a);
-    scanf(b);
-    scanf(c);
-    scanf(d);
+}
+int fun1() {
+    int f;
+    scanf(f);
+}
+int fun()
+{
+    int g;
+    printf(g);
 }

@@ -13,6 +13,10 @@ public class Function {
     ， 初始为3，最终大小 = 变量定义个数 + 初始 + 返回值(如果有)
      */
     private int size;
+    /**
+     * 函数（的入口地址在解释程序中的下标）
+     */
+    private int entryAddress = 0;
 
     public Function(String name, boolean hasReturn) {
         this.name = name;
@@ -32,8 +36,20 @@ public class Function {
         this.size += addSize;
     }
 
+    public int getSize() {
+        return size;
+    }
+
+    public void setEntryAddress(int entryAddress) {
+        this.entryAddress = entryAddress;
+    }
+
+    public int getEntryAddress() {
+        return entryAddress;
+    }
+
     @Override
     public String toString() {
-        return "name:" + name + " hasReturn:" + hasReturn + " size:" + size;
+        return "name:" + name + " hasReturn:" + hasReturn + " size:" + size + " entryAddress:" + entryAddress;
     }
 }

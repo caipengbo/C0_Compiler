@@ -19,5 +19,5 @@ public enum InstructionType {
     DIV,
     RED,
     WRT,
-    RET
+    RET,
 }

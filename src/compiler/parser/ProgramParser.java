@@ -1,6 +1,5 @@
 package compiler.parser;
 
-import a.g.S;
 import compiler.common.Symbol;
 import compiler.common.Word;
 import compiler.common.Wrong;
@@ -87,7 +86,7 @@ public class ProgramParser {
 
 
 
-    //生成指令,返回指令所在的生成的位置
+    //生成指令,返回新指令所在的位置
     private int generateInstruction(InstructionType type, int layer, int third) {
         Instruction instruction = new Instruction();
         instruction.setName(type);
@@ -98,96 +97,7 @@ public class ProgramParser {
     }
 
 
-    // 因子处理
-    private void parseFactor() {
-        while (factorBeginSymbolFlags[word.getType().ordinal()] == true)	// 循环直到不是因子开始符号
-        {
-            switch (word.getType()) {
-                case ident:{
-                    i = postion(id, *ptx);	/* 查找名字 */
-                    if (i == 0)error(11);	/* 名字未声明 */
-                    else
-                    {
-                        switch (table[i].kind)
-                        {
-                            case constant:	/* 名字为常量 */
-                                gendo(lit, 0, table[i].val);	/* 直接把常量的值入栈 */
-                                break;
-                            case variable:	/* 名字为变量 */
-                                gendo(lod, lev - table[i].level, table[i].adr);	/* 找到变量地址并将其值入栈 */
-                                break;
-                            case procedur:	/* 名字为过程 */
-                                error(21);	/* 不能为过程 */
-                                break;
-                        }
-                    }
-                    getsymdo;
-                }
-                case number: {
-                    if (num>amax)
-                    {
-                        error(31);
-                        num = 0;
-                    }
-                    gendo(lit, 0, num);
-                    getsymdo;
-                }
-                case lbracket: {
-                    if (sym == lparen)	/* 因子为表达式 */
-                    {
-                        getsymdo;
-                        memcpy(nxtlev, fsys, sizeof(bool)*symnum);
-                        nxtlev[rparen] = true;
-                        expressiondo(nxtlev, ptx, lev);
-                        if (sym == rparen)
-                        {
-                            getsymdo;
-                        }
-                        else error(22);	/* 缺少右括号 */
-                    }
-                    test(fsys, facbegsys, 23);	/* 因子后有非法符号 */
-                }
-            }
-        }
-    }
-    //表达式处理
-    private void parseExpression() {
-        enum symbol addop;	/* 用于保存正负号 */
-        bool nxtlev[symnum];
 
-        if (sym == plus || sym == minus)	/* 开头的正负号，此时当前表达式被看作一个正的或负的项 */
-        {
-            addop = sym;	/* 保存开头的正负号 */
-            getsymdo;
-            memcpy(nxtlev, fsys, sizeof(bool)*symnum);
-            nxtlev[plus] = true;
-            nxtlev[minus] = true;
-            termdo(nxtlev, ptx, lev);	/* 处理项 */
-            if (addop == minus)gendo(opr, 0, 1);	/* 如果开头为负号生令成取负指 */
-        }
-        else	/* 此时表达式被看作项的加减 */
-        {
-            memcpy(nxtlev, fsys, sizeof(bool)*symnum);
-            nxtlev[plus] = true;
-            nxtlev[minus] = true;
-            termdo(nxtlev, ptx, lev);	/* 处理项 */
-        }
-        while (sym == plus || sym == minus)
-        {
-            addop = sym;
-            getsymdo;
-            memcpy(nxtlev, fsys, sizeof(bool)*symnum);
-            nxtlev[plus] = true;
-            nxtlev[minus] = true;
-            termdo(nxtlev, ptx, lev);	/* 处理项 */
-            if (addop == plus)
-            {
-                gendo(opr, 0, 2);	/* 生成加法指令 */
-            }
-            else gendo(opr, 0, 3);	/* 生成减法指令 */
-        }
-        return 0;
-    }
 
 
     /*处理语句
@@ -215,7 +125,7 @@ public class ProgramParser {
                         if (word.getType() != Symbol.rbracket) {
                             wrongList.add(new Wrong(lexer.getPosition(), 3, "缺少')'"));
                         } else {
-
+                            //TODO 函数调用
                         }
                     } else if (word.getType() == Symbol.equal) { //赋值
                         // int函数调用
@@ -226,15 +136,27 @@ public class ProgramParser {
                 }
                 //返回
                 case returnsym: {
-                    //表达式处理
+                    if (word.getType() != Symbol.lbracket ) {
+                        wrongList.add(new Wrong(lexer.getPosition(),4, "缺少'('"));
+                    } else {
+                        //TODO 表达式处理
+
+                        if (word.getType() != Symbol.rbracket) {
+                            wrongList.add(new Wrong(lexer.getPosition(), 3, "缺少')'"));
+                        } else {
+                            generateInstruction(InstructionType.STO, 1,0);
+                            generateInstruction(InstructionType.RET, 0,1); //带return是带返回值的函数
+                        }
+
+                    }
+                    break;
                 }
                 //读
                 case scanfsym: {
                     word = lexer.getWord();
                     if (word.getType() != Symbol.lbracket ) {
                         wrongList.add(new Wrong(lexer.getPosition(),4, "缺少'('"));
-                    } else
-                    {
+                    } else {
                         word = lexer.getWord();
                         if (word.getType() == Symbol.ident) {
                             // 查找要读的变量
@@ -336,15 +258,16 @@ public class ProgramParser {
             }
             Function function = functionMap.get(functionName);
             function.updateSize(localCount);
-            //TODO 声明结束，为函数分配内存，记录当前函数入口地址
+            int size = function.getSize();;
+            int entryAddress = 0;
+            //声明结束，为函数分配内存，记录当前函数入口地址
             if (!functionName.equals("main")) { //当前函数不是主函数，分配函数位置即可
-                int size = function.getSize();
-                int entryAddress = generateInstruction(InstructionType.INT, 0, size);
-                function.setEntryAddress(entryAddress);
+                entryAddress = generateInstruction(InstructionType.INT, 0, size);
             } else { //函数是主函数时，将全局变量分配至主函数中
                 // TODO 填写主函数的函数表
+                entryAddress = generateInstruction(InstructionType.INT, 0, size + globalCount);
             }
-
+            function.setEntryAddress(entryAddress);
             //语句
             parseStatement(functionName);
 

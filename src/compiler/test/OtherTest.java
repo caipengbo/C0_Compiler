@@ -4,14 +4,8 @@ import compiler.common.Symbol;
 import compiler.parser.Function;
 import org.junit.Test;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
 
 /**其他测试
  * Created by Myth on 2017/5/4 0004.
@@ -67,5 +61,19 @@ public class OtherTest {
     @Test
     public void test5() {
         System.out.println(Symbol.values().length);
+    }
+    @Test
+    public void test6() {
+        //Junit无法实现控制台的输入
+        Scanner scanner = new Scanner(System.in);
+        int a = scanner.nextInt();
+        System.out.println(a);
+        scanner.close();
+    }
+    @Test
+    public void test7() throws IOException {
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
+        String s = bufferedReader.readLine();
+        System.out.println(s);
     }
 }

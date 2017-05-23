@@ -2,24 +2,14 @@ import compiler.interpret.Interpreter;
 
 public class Main {
 
-    public static void main(String[] args) {
-
+    public static void main(String[] args) throws Exception {
         Interpreter interpreter = new Interpreter();
-        try {
-            interpreter.openFile("src/equal.txt");
-        } catch (Exception e) {
-            e.printStackTrace();
-            return;
-        }
+
+        interpreter.openFile("src/factorial2.txt");
         //interpreter.printInstructionList();
         //File file  = new File("src/out.txt");
         //interpreter.writeToFile(file);
-        try {
-            interpreter.interpret();
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println("目标代码有问题");
-            return;
-        }
+        interpreter.interpret();
+
     }
 }

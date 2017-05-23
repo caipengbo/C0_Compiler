@@ -27,11 +27,11 @@ public class Interpreter {
     private int[] runtimeStack;
 
     /**
-     * 位置指针
+     * 位置指针（注意是指令位置，还是栈中位置）
      */
-    private int currentPosition; //当前程序位置
+    private int currentPosition; //当前正在执行的解释程序位置
     private int top; //栈顶指针
-    private int basePosition;   //每个函数的初始位置
+    private int basePosition;   //每个函数的在栈中的初始位置
 
     public Interpreter() {
         runtimeStack = new int[MAX_SIZE];
@@ -143,7 +143,7 @@ public class Interpreter {
                 }
                 case CAL: { //CAL 0 a 调用函数，a为函数地址
                     //每个函数块分配的区域，都保存着 1.基地址（分配的区域开始位置）2.调用者的基地址 3.返回地址
-                    runtimeStack[top] = top;  //基地址
+                    runtimeStack[top] = top;  //基地址----也用来保存返回值
                     runtimeStack[top+1] = basePosition; //调用者的基地址
                     runtimeStack[top+2] = currentPosition+1; //程序执行的 当前地址
                     basePosition = top;  //基地址指针改变
@@ -205,9 +205,17 @@ public class Interpreter {
                     break;
                 }
                 case RET: { //RET 0 0	函数调用结束后,返回调用点并退栈
-                    currentPosition = runtimeStack[basePosition+2];
-                    top = basePosition;
-                    basePosition = runtimeStack[basePosition+1];
+                    if(instruction.getThird() == 0) {   //没有返回值的退栈
+                        currentPosition = runtimeStack[basePosition+2];
+                        top = basePosition;
+                        basePosition = runtimeStack[basePosition+1];
+                    } else { //TODO 扩展的指令 RET 0 1 有返回值的 退栈 ，少退一个(返回值)
+                        currentPosition = runtimeStack[basePosition+2];
+                        top = basePosition+1;  // basePosition位置 保存的是返回值
+                        basePosition = runtimeStack[basePosition+1];
+                    }
+
+
                     break;
                 }
             }

@@ -3,6 +3,7 @@ package compiler.test;
 import compiler.common.Wrong;
 import compiler.interpret.Instruction;
 import compiler.parser.Function;
+import compiler.parser.FunctionCall;
 import compiler.parser.ProgramParser;
 import compiler.parser.Variable;
 import org.junit.Test;
@@ -18,12 +19,13 @@ import java.util.Map;
 public class ProgramParserTest {
     @Test
     public void parse() throws Exception {
-        ProgramParser programParser = new ProgramParser("src/compiler/test/declare.txt");
+        ProgramParser programParser = new ProgramParser("src/compiler/test/functioncall.txt");
         programParser.parse();
         List<Wrong> wrongList = programParser.getWrongList();
         Map<String,Variable> variableMap = programParser.getVariableMap();
         Map<String,Function> functionMap = programParser.getFunctionMap();
         List<Instruction> instructionList = programParser.getGeneratedInstructions();
+        List<FunctionCall> functionCallList = programParser.getFunctionCallList();
         for (Wrong wrong : wrongList) {
             System.out.println(wrong);
         }
@@ -33,8 +35,13 @@ public class ProgramParserTest {
         for (Map.Entry<String,Function> entry : functionMap.entrySet()) {
             System.out.println(entry.getValue());
         }
+        for (FunctionCall functionCall : functionCallList) {
+            System.out.println(functionCall);
+        }
+        int i = 0;
         for (Instruction instruction : instructionList) {
-            System.out.println(instruction);
+            System.out.println(i + " " +instruction.toString());
+            i++;
         }
 
     }

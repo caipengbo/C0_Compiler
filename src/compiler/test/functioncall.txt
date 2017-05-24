@@ -1,0 +1,12 @@
+int d;
+void fun3()
+{
+    int a;
+    int b;
+}
+void main()
+{
+    int c;
+    fun3();
+    fun3();
+}

@@ -24,6 +24,7 @@ public class ProgramParser {
     private Lexer lexer;
     private Word word; //每次去到的单词
     private List<Wrong> wrongList;
+    private List<FunctionCall> functionCallList; //记录函数调用
     //为方便定位变量与函数(名字作为Key)，使用Map表示 变量表与函数表
     private Map<String, Variable> variableMap;
     private Map<String, Function> functionMap;
@@ -42,6 +43,10 @@ public class ProgramParser {
         return wrongList;
     }
 
+    public List<FunctionCall> getFunctionCallList() {
+        return functionCallList;
+    }
+
     public Map<String, Variable> getVariableMap() {
         return variableMap;
     }
@@ -57,6 +62,7 @@ public class ProgramParser {
         //相关初始化
         lexer = new Lexer();
         wrongList = new ArrayList<>();
+        functionCallList = new ArrayList<>();
         variableMap = new HashMap<>();
         functionMap = new HashMap<>();
         generatedInstructions = new ArrayList<>();
@@ -109,11 +115,11 @@ public class ProgramParser {
             switch (word.getType()) {
                 //条件语句
                 case ifsym: {
-
+                    break;
                 }
                 //循环语句
                 case whilesym: {
-
+                    break;
                 }
                 //函数调用
                 //赋值语句
@@ -126,6 +132,10 @@ public class ProgramParser {
                             wrongList.add(new Wrong(lexer.getPosition(), 3, "缺少')'"));
                         } else {
                             //TODO 函数调用
+                            //-1代表未知，如果调用函数正确，最后会查看函数定义表，回填函数入口地址。
+                            int position = generateInstruction(InstructionType.CAL, 0, -1);;
+                            FunctionCall functionCall = new FunctionCall(val,position,false);
+                            functionCallList.add(functionCall);
                         }
                     } else if (word.getType() == Symbol.equal) { //赋值
                         // int函数调用
@@ -133,6 +143,7 @@ public class ProgramParser {
                     } else {
                         wrongList.add(new Wrong(lexer.getPosition(), 8, "语句格式错误"));
                     }
+                    break;
                 }
                 //返回
                 case returnsym: {
@@ -173,7 +184,7 @@ public class ProgramParser {
                                 wrongList.add(new Wrong(lexer.getPosition(),7, "变量未声明或不在作用域内"));
                             }
                         } else {
-                            wrongList.add(new Wrong(lexer.getPosition(),1,"缺少标识符"));
+                            wrongList.add(new Wrong(lexer.getPosition(),1,"缺少标识符(或标识符错误)"));
                         };
                         word = lexer.getWord();
                         if (word.getType() != Symbol.rbracket) {
@@ -205,7 +216,7 @@ public class ProgramParser {
                                 wrongList.add(new Wrong(lexer.getPosition(),7, "变量未声明或不在作用域内"));
                             }
                         } else {
-                            wrongList.add(new Wrong(lexer.getPosition(),1,"缺少标识符"));
+                            wrongList.add(new Wrong(lexer.getPosition(),1,"缺少标识符(或标识符错误)"));
                         };
                         word = lexer.getWord();
                         if (word.getType() != Symbol.rbracket) {
@@ -228,6 +239,7 @@ public class ProgramParser {
     //子程序处理
     private void parseSubProgram(String functionName) throws Exception {
         int localCount = 0;
+        int address;
         word = lexer.getWord();
         if (word.getType() != Symbol.lbrace) {
             wrongList.add(new Wrong(lexer.getPosition(), 5, "缺少'{'"));
@@ -236,16 +248,27 @@ public class ProgramParser {
             while (word.getType() == Symbol.intsym) {  //局部变量声明
                 word = lexer.getWord();
                 if (word.getType() != ident) {
-                    wrongList.add(new Wrong(lexer.getPosition(), 1, "缺少标识符"));
+                    wrongList.add(new Wrong(lexer.getPosition(), 1, "缺少标识符(或标识符错误)"));
                 } else {
-                    Variable variable = new Variable(word.getValue(), functionName, localCount + 3);
+                    // 确保全局变量在主函数栈的相对位置
+                    if (functionName.equals("main")) {
+                        address = globalCount + localCount + 3;
+                    } else {
+                        address = localCount + 3;
+                    }
+                    Variable variable = new Variable(word.getValue(), functionName, address);
                     //TODO 由于是用名字作为Key,所以变量不能重名
                     variableMap.put(word.getValue(),variable);
                     localCount++;
                     word = lexer.getWord();
                     while (word.getType() == Symbol.comma) {
                         word = lexer.getWord();
-                        variable = new Variable(word.getValue(), functionName, localCount + 3);
+                        if (functionName.equals("main")) {
+                            address = globalCount + localCount + 3;
+                        } else {
+                            address = localCount + 3;
+                        }
+                        variable = new Variable(word.getValue(), functionName, address);
                         variableMap.put(word.getValue(),variable);
                         localCount++;
                         word = lexer.getWord();
@@ -257,16 +280,15 @@ public class ProgramParser {
                 word = lexer.getWord();
             }
             Function function = functionMap.get(functionName);
-            function.updateSize(localCount);
+            if (functionName.equals("main")) {
+                function.updateSize(localCount + globalCount);
+            } else {
+                function.updateSize(localCount);
+            }
             int size = function.getSize();;
             int entryAddress = 0;
             //声明结束，为函数分配内存，记录当前函数入口地址
-            if (!functionName.equals("main")) { //当前函数不是主函数，分配函数位置即可
-                entryAddress = generateInstruction(InstructionType.INT, 0, size);
-            } else { //函数是主函数时，将全局变量分配至主函数中
-                // TODO 填写主函数的函数表
-                entryAddress = generateInstruction(InstructionType.INT, 0, size + globalCount);
-            }
+            entryAddress = generateInstruction(InstructionType.INT, 0, size);
             function.setEntryAddress(entryAddress);
             //语句
             parseStatement(functionName);
@@ -328,7 +350,7 @@ public class ProgramParser {
                         wrongList.add(new Wrong(lexer.getPosition(), 2, "缺少';'"));
                     }
                 } else {
-                    wrongList.add(new Wrong(lexer.getPosition(), 1, "缺少标识符"));
+                    wrongList.add(new Wrong(lexer.getPosition(), 1, "缺少标识符(或标识符错误)"));
                 }
             } else if (word.getType() == Symbol.voidsym) {
                 word = lexer.getWord();

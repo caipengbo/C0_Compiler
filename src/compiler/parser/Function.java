@@ -50,6 +50,11 @@ public class Function {
 
     @Override
     public String toString() {
-        return "name:" + name + " hasReturn:" + hasReturn + " size:" + size + " entryAddress:" + entryAddress;
+        return "Function{" +
+                "name='" + name + '\'' +
+                ", hasReturn=" + hasReturn +
+                ", size=" + size +
+                ", entryAddress=" + entryAddress +
+                '}';
     }
 }

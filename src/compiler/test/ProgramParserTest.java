@@ -18,13 +18,13 @@ import java.util.Map;
  */
 public class ProgramParserTest {
     @Test
-    public void parse() throws Exception {
-        ProgramParser programParser = new ProgramParser("src/compiler/test/functioncall.txt");
-        programParser.parse();
+    public void parseProgram() throws Exception {
+        ProgramParser programParser = new ProgramParser("src/compiler/test/if.txt");
+        programParser.parseProgram();
         List<Wrong> wrongList = programParser.getWrongList();
         Map<String,Variable> variableMap = programParser.getVariableMap();
         Map<String,Function> functionMap = programParser.getFunctionMap();
-        List<Instruction> instructionList = programParser.getGeneratedInstructions();
+        List<Instruction> instructionList = programParser.getGeneratedInstructionList();
         List<FunctionCall> functionCallList = programParser.getFunctionCallList();
         for (Wrong wrong : wrongList) {
             System.out.println(wrong);
@@ -40,7 +40,7 @@ public class ProgramParserTest {
         }
         int i = 0;
         for (Instruction instruction : instructionList) {
-            System.out.println(i + " " +instruction.toString());
+            System.out.println(i + ": " +instruction.toString());
             i++;
         }
 

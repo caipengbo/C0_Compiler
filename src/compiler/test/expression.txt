@@ -1,0 +1,7 @@
+void main()
+{
+    int a;
+    scanf(a);
+    a=(5+3)/4;
+    printf(a);
+}

@@ -1,12 +1,11 @@
-int d;
-void fun3()
+int fun1()
 {
-    int a;
-    int b;
+    return (1);
 }
 void main()
 {
-    int c;
-    fun3();
-    fun3();
+    int a;
+    int b;
+    a=fun1();
+    b=fun1()*2;
 }

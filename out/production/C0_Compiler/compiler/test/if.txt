@@ -1,0 +1,13 @@
+void main()
+{
+    int a,b;
+    if(1)
+    {
+        printf(a);
+    }
+    else
+    {
+        printf(b);
+    }
+    a=99;
+}

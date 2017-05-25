@@ -31,7 +31,7 @@ public class ProgramParser {
    // private Map<String,>
     //TODO 考虑是否在开始加一条跳转到主函数指令
     /**
-     * 生成的指令，指令从位置1开始！
+     * 生成的指令，指令从位置1开始
      */
     private List<Instruction> generatedInstructions;
     private int globalCount = 0;
@@ -90,8 +90,6 @@ public class ProgramParser {
 
     }
 
-
-
     //生成指令,返回新指令所在的位置
     private int generateInstruction(InstructionType type, int layer, int third) {
         Instruction instruction = new Instruction();
@@ -102,23 +100,99 @@ public class ProgramParser {
         return generatedInstructions.indexOf(instruction);
     }
 
+    // 因子处理
+    private void parseFactor(String functionName) throws Exception {
+        while (factorBeginSymbolFlags[word.getType().ordinal()]) // 循环直到不是因子开始符号
+        {
+            switch (word.getType()) {
+                case ident:{   //因子为变量或者函数调用
+                    //TODO 因子部分不支持函数
+                    Variable variable = variableMap.get(word.getValue());
+                    if (variable != null && (variable.getScope().equals(functionName)||variable.getScope().equals("global"))) {
+                        if (variable.getScope().equals(functionName)) {
+                            generateInstruction(InstructionType.LOD, 0,variable.getAddress()); //当前层
+                        } else {
+                            generateInstruction(InstructionType.LOD, 1,variable.getAddress()); //全局变量，外层
+                        }
+                    } else {
+                        wrongList.add(new Wrong(lexer.getPosition(), 7, "变量未声明或不在作用域内"));
+                    }
+                    break;
+                }
+                case number: {   //因子为数
+                    generateInstruction(InstructionType.LIT, 0, Integer.parseInt(word.getValue()));
+                    break;
+                }
+                case lbracket: {    //因子为表达式
+                    // TODO 处理表达式
+                    break;
+                }
+            }
+            word = lexer.getWord();
+        }
+    }
 
+    // 项处理 <因子>｛(*｜/) <因子>｝
+    private void parseTerm(String functionName) throws Exception {
+        Symbol symbol;
+        parseFactor(functionName);	// 处理因子
+        while (word.getType() == Symbol.multiply || word.getType() == Symbol.divide) {
+            symbol = word.getType();
+            word = lexer.getWord();
+            parseFactor(functionName);
+            if (symbol == Symbol.multiply) { // 生成乘法指令
+                generateInstruction(InstructionType.MUL, 0, 0);
+            } else { // 生成除法指令
+                generateInstruction(InstructionType.DIV, 0, 0);
+            }
+        }
+    }
 
-
+    //表达式处理  [+｜-] <项> { (+｜-) <项>}
+    // TODO 第一个项 不支持 + - ：<项> { (+｜-) <项>}
+    private void parseExpression(String functionName) throws Exception {
+        Symbol symbol;
+        parseTerm(functionName); //处理项
+        while (word.getType() ==  Symbol.plus || word.getType() == Symbol.minus) {
+            symbol = word.getType();
+            word = lexer.getWord();
+            parseTerm(functionName);
+            if (symbol == Symbol.plus)
+            {
+                generateInstruction(InstructionType.ADD, 0, 0); // 生成加法指令
+            } else {
+                generateInstruction(InstructionType.SUB, 0, 0); // 生成减法指令
+            }
+        }
+    }
 
     /*处理语句
     <语句>-> <条件语句>｜<循环语句> | '{'<语句序列>'}' | <自定义函数调用语句> | <赋值语句> | <返回语句> | <读语句> | <写语句> | ;
     */
     private void parseStatement(String functionName) throws Exception {
-
-        while(statementBeginSymbolFlags[word.getType().ordinal()] == true) {  //循环直到不是语句开始符号
+        while(statementBeginSymbolFlags[word.getType().ordinal()]) {  //循环直到不是语句开始符号
             switch (word.getType()) {
                 //条件语句
                 case ifsym: {
+                    //判断（
+                    //表达式   判断）
+                    //生成JPC指令，记录下来此条指令的地址(用于回填)
+                    //处理if内的语句
+                    //生成JMP指令，记录下来此条指令的地址(用于回填)，记录下来此条位置A
+                    //处理else内的语句，记录下来最后一条指令的地址B
+                    //回填JPC 0 A+1
+                    //回填JMP 0 B+1
                     break;
                 }
                 //循环语句
                 case whilesym: {
+                    //判断（
+                    //记录表达式产生指令 的开始位置A（也就是此时指令列表的大小）
+                    //表达式   判断 ）
+                    //产生JPC指令 ，记录下来JPC指令的位置
+                    //循环体语句
+                    //生成JMP语句  JMP 0 A, 记录此条语句的位置B
+                    //回填JPC 0 B+1
                     break;
                 }
                 //函数调用
@@ -133,7 +207,7 @@ public class ProgramParser {
                         } else {
                             //TODO 函数调用
                             //-1代表未知，如果调用函数正确，最后会查看函数定义表，回填函数入口地址。
-                            int position = generateInstruction(InstructionType.CAL, 0, -1);;
+                            int position = generateInstruction(InstructionType.CAL, 0, -1);
                             FunctionCall functionCall = new FunctionCall(val,position,false);
                             functionCallList.add(functionCall);
                         }
@@ -185,7 +259,7 @@ public class ProgramParser {
                             }
                         } else {
                             wrongList.add(new Wrong(lexer.getPosition(),1,"缺少标识符(或标识符错误)"));
-                        };
+                        }
                         word = lexer.getWord();
                         if (word.getType() != Symbol.rbracket) {
                             wrongList.add(new Wrong(lexer.getPosition(), 3, "缺少')'"));
@@ -193,7 +267,7 @@ public class ProgramParser {
                     }
                     break;
                 }
-                //写
+                //写 TODO 有点问题
                 case printfsym: {
                     word = lexer.getWord();
                     if (word.getType() != Symbol.lbracket ) {
@@ -217,7 +291,7 @@ public class ProgramParser {
                             }
                         } else {
                             wrongList.add(new Wrong(lexer.getPosition(),1,"缺少标识符(或标识符错误)"));
-                        };
+                        }
                         word = lexer.getWord();
                         if (word.getType() != Symbol.rbracket) {
                             wrongList.add(new Wrong(lexer.getPosition(), 3, "缺少')'"));
@@ -232,8 +306,6 @@ public class ProgramParser {
             }
             word = lexer.getWord();
         }
-
-
     }
 
     //子程序处理
@@ -285,10 +357,9 @@ public class ProgramParser {
             } else {
                 function.updateSize(localCount);
             }
-            int size = function.getSize();;
-            int entryAddress = 0;
+            int size = function.getSize();
             //声明结束，为函数分配内存，记录当前函数入口地址
-            entryAddress = generateInstruction(InstructionType.INT, 0, size);
+            int entryAddress = generateInstruction(InstructionType.INT, 0, size);
             function.setEntryAddress(entryAddress);
             //语句
             parseStatement(functionName);

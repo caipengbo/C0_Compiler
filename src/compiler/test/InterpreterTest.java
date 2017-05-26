@@ -13,7 +13,7 @@ public class InterpreterTest {
     public void interpret() throws Exception {
         Interpreter interpreter = new Interpreter();
 
-        interpreter.openFile("src/while2.txt");
+        interpreter.openFile("src/while.txt");
         //interpreter.printInstructionList();
         //File file  = new File("src/out.txt");
         //interpreter.writeToFile(file);

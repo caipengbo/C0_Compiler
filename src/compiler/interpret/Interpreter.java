@@ -19,23 +19,24 @@ public class Interpreter {
     /**
      * 将要解释的指令列表
      */
-    private List<Instruction> instructionList; //下标从零开始（解释程序是从1开始），注意
+    private List<Instruction> instructionList; //下标从1开始
 
     /**
-     * 运行栈,在解释文件中,
+     * 运行栈（每个函数都有初始三个位置，0：保存基地址、也用来保存返回值；1：调用者的地址；2：返回地址）
      */
     private int[] runtimeStack;
 
     /**
      * 位置指针（注意是指令位置，还是栈中位置）
      */
-    private int currentPosition; //当前正在执行的解释程序位置
+    private int currentInstructionPosition; //当前正在执行的解释程序位置
     private int top; //栈顶指针
     private int basePosition;   //每个函数的在栈中的初始位置
 
     public Interpreter() {
         runtimeStack = new int[MAX_SIZE];
-        currentPosition = 0;
+        runtimeStack[2] = MAX_SIZE;  //runtimeStack[2]是主函数的返回地址，设置为一个大数字，用来控制主函数的结束
+        currentInstructionPosition = 0;
         top = 0;
         basePosition = 0;
     }
@@ -45,16 +46,18 @@ public class Interpreter {
 
     /**
      * 打开解释程序文件,为指令列表赋值
-     * @param pathname  解释程序文件(.itp)的路径
+     * @param pathname  解释程序文件的路径
      * @throws Exception
      * @return 失败返回false
      */
-    public void openFile(String pathname ) throws Exception {
+    public void openFile(String pathname) throws Exception {
         File file = new File(pathname);
         BufferedReader bufferedReader;
         bufferedReader = new BufferedReader(new FileReader(file));
         String line;
         instructionList = new ArrayList<>();
+        //为了使instructionList 的下标从1开始，添加一个占位元素
+        instructionList.add(new Instruction());
         while((line = bufferedReader.readLine())!=null) {
             String[] str = line.split(" ");
             Instruction instruction = new Instruction();
@@ -72,7 +75,7 @@ public class Interpreter {
      * 打印解释程序列表,行号从1开始
      */
     public void printInstructionList() {
-        int i = 1;
+        int i = 0;
         for (Instruction instruction : instructionList) {
             System.out.println(i + ": " + instruction.toString());
             i++;
@@ -82,31 +85,18 @@ public class Interpreter {
     /**
      * 将解释程序写入文件
      * @param file 指定文件
-     * @return 失败返回false
+     * @throws IOException
      */
-    public boolean writeToFile(File file) {
+    public void writeToFile(File file) throws IOException {
         BufferedWriter bufferedWriter = null;
-        try {
-            if (!file.exists()) {
-                file.createNewFile();
-            }
-            bufferedWriter = new BufferedWriter(new FileWriter(file));
-            int i = 1;
-            for (Instruction instruction : instructionList) {
-                bufferedWriter.write(i + ": " +instruction.toString() + "\n");
-                i++;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        } finally {
-            try {
-                bufferedWriter.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        if (!file.exists()) {
+            file.createNewFile();
         }
-        return true;
+        bufferedWriter = new BufferedWriter(new FileWriter(file));
+        for (int i = 0; i < instructionList.size(); i++) {
+            bufferedWriter.write(i + ": " +instructionList.get(i).toString() + "\r\n");
+        }
+        bufferedWriter.close();
     }
 
     /**
@@ -116,106 +106,105 @@ public class Interpreter {
     public void interpret() throws Exception {
         //初始指针位置
         Scanner scanner = new Scanner(System.in); //供输入指令RED使用
-        currentPosition = 0;
+        int size = instructionList.size();
+        currentInstructionPosition = 1;
         basePosition = 0;
         top = 0;
-        while (currentPosition < instructionList.size()) {
-            Instruction instruction = instructionList.get(currentPosition);
+        while (currentInstructionPosition < size) {
+            Instruction instruction = instructionList.get(currentInstructionPosition);
             switch (instruction.getName()) {
                 case LIT: {  //LIT 0 a	将常数值取到栈顶，a为常数值
                     runtimeStack[top] = instruction.getThird();
                     top++;
-                    currentPosition++;
+                    currentInstructionPosition++;
                     break;
                 }
                 case LOD: { //LOD t a 将变量值取到栈顶,a为相对地址,t为层数
                     int absolutePosition = getAbsolutePosition(basePosition,instruction.getLayer(),instruction.getThird());
                     runtimeStack[top] = runtimeStack[absolutePosition];
                     top++;
-                    currentPosition++;
+                    currentInstructionPosition++;
                     break;
                 }
                 case STO: { //STO t a 将栈顶内容送入某变量单元中，a为相对地址，t为层数
                     int absolutePosition = getAbsolutePosition(basePosition,instruction.getLayer(),instruction.getThird());
                     runtimeStack[absolutePosition] = runtimeStack[top-1];
-                    currentPosition++;
+                    currentInstructionPosition++;
                     break;
                 }
                 case CAL: { //CAL 0 a 调用函数，a为函数地址
                     //每个函数块分配的区域，都保存着 1.基地址（分配的区域开始位置）2.调用者的基地址 3.返回地址
-                    runtimeStack[top] = top;  //基地址----也用来保存返回值
+                    runtimeStack[top] = top;  //基地址也用来保存返回值
                     runtimeStack[top+1] = basePosition; //调用者的基地址
-                    runtimeStack[top+2] = currentPosition+1; //程序执行的 当前地址
+                    runtimeStack[top+2] = currentInstructionPosition +1; //返回地址
                     basePosition = top;  //基地址指针改变
-                    currentPosition = instruction.getThird()-1; // 当前位置指针更新（注意下标）
+                    currentInstructionPosition = instruction.getThird(); // 当前位置指针更新（注意下标）
                     break;
                 }
                 case INT: { //INT 0 a	在运行栈中为被调用的过程开辟a个单元的数据区
                     top +=instruction.getThird();
-                    currentPosition++;
+                    currentInstructionPosition++;
                     break;
                 }
                 case JMP: { //JMP 0 a	无条件跳转至a地址
-                    currentPosition = instruction.getThird()-1;
+                    currentInstructionPosition = instruction.getThird();
                     break;
                 }
                 case JPC: { //JPC 0 a	条件跳转，当栈顶值为0，则跳转至a地址，否则顺序执行
                     if (runtimeStack[top-1] == 0) {
-                        currentPosition = instruction.getThird()-1;
+                        currentInstructionPosition = instruction.getThird();
                     } else {
-                        currentPosition++;
+                        currentInstructionPosition++;
                     }
                     break;
                 }
                 case ADD: { //次栈顶与栈顶相加,退两个栈元素，结果值进栈
                     runtimeStack[top-2] = runtimeStack[top-2] + runtimeStack[top-1];
                     top--;
-                    currentPosition++;
+                    currentInstructionPosition++;
                     break;
                 }
                 case SUB: { //减法
                     runtimeStack[top-2] = runtimeStack[top-2] - runtimeStack[top-1];
                     top--;
-                    currentPosition++;
+                    currentInstructionPosition++;
                     break;
                 }
                 case MUL: { //乘法
                     runtimeStack[top-2] = runtimeStack[top-2] * runtimeStack[top-1];
                     top--;
-                    currentPosition++;
+                    currentInstructionPosition++;
                     break;
                 }
                 case DIV: { //除法
                     runtimeStack[top-2] = runtimeStack[top-2] / runtimeStack[top-1];
                     top--;
-                    currentPosition++;
+                    currentInstructionPosition++;
                     break;
                 }
                 case RED: { //RED 0 0	从命令行读入一个输入置于栈顶
                     int value = scanner.nextInt();
                     runtimeStack[top] = value;
                     top++;
-                    currentPosition++;
+                    currentInstructionPosition++;
                     break;
                 }
                 case WRT: { //WRT 0 0	栈顶值输出至屏幕并换行
                     int value = runtimeStack[top-1];
                     System.out.println(value);
-                    currentPosition++;
+                    currentInstructionPosition++;
                     break;
                 }
                 case RET: { //RET 0 0	函数调用结束后,返回调用点并退栈
                     if(instruction.getThird() == 0) {   //没有返回值的退栈
-                        currentPosition = runtimeStack[basePosition+2];
+                        currentInstructionPosition = runtimeStack[basePosition+2];
                         top = basePosition;
                         basePosition = runtimeStack[basePosition+1];
                     } else { //TODO 扩展的指令 RET 0 1 有返回值的 退栈 ，少退一个(返回值)
-                        currentPosition = runtimeStack[basePosition+2];
+                        currentInstructionPosition = runtimeStack[basePosition+2];
                         top = basePosition+1;  // basePosition位置 保存的是返回值
                         basePosition = runtimeStack[basePosition+1];
                     }
-
-
                     break;
                 }
             }

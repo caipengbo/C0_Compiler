@@ -76,4 +76,11 @@ public class OtherTest {
         String s = bufferedReader.readLine();
         System.out.println(s);
     }
+    @Test
+    public void test8() throws IOException {
+        String currentPath = System.getProperty("user.dir"); // 获取当前绝对路径
+        String sourceFileName = "file.txt";
+        String path = currentPath + File.separator +sourceFileName;
+        System.out.println(path);
+    }
 }

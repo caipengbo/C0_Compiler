@@ -63,7 +63,7 @@ public class ProgramParser {
         return lexer.getSourceCodeLineList();
     }
 
-    public ProgramParser(String pathname) {
+    public ProgramParser(String pathname) throws Exception {
         //相关初始化
         lexer = new Lexer();
         wrongList = new ArrayList<>();
@@ -74,12 +74,7 @@ public class ProgramParser {
         //为了使产生的代码从下标1开始，添加一个占位元素占据下标0位置
         generatedInstructionList.add(new Instruction());
         generatedInstructionList.add(new Instruction(InstructionType.JMP, 0, -1)); //产生一个跳转到主函数的指令，最后回填main位置
-        try {
-            lexer.openFile(pathname);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
+        lexer.openFile(pathname);
         statementBeginSymbolFlags = new boolean[24];  // 语句开始符号集
         factorBeginSymbolFlags = new boolean[24];  //因子开始符号集
 

@@ -19,16 +19,22 @@ import java.util.Map;
 public class ProgramParserTest {
     @Test
     public void parseProgram() throws Exception {
-        ProgramParser programParser = new ProgramParser("src/compiler/test/if.txt");
+        ProgramParser programParser = new ProgramParser("src/compiler/test/source/while.c0");
         programParser.parseProgram();
         List<Wrong> wrongList = programParser.getWrongList();
         Map<String,Variable> variableMap = programParser.getVariableMap();
         Map<String,Function> functionMap = programParser.getFunctionMap();
         List<Instruction> instructionList = programParser.getGeneratedInstructionList();
         List<FunctionCall> functionCallList = programParser.getFunctionCallList();
+        List<String> sourceList = programParser.getSourceCodeLineList();
         for (Wrong wrong : wrongList) {
             System.out.println(wrong);
         }
+
+        for (String s : sourceList) {
+            System.out.println(s);
+        }
+
         for (Map.Entry<String,Variable> entry : variableMap.entrySet()) {
             System.out.println(entry.getValue());
         }
@@ -40,7 +46,8 @@ public class ProgramParserTest {
         }
         int i = 0;
         for (Instruction instruction : instructionList) {
-            System.out.println(i + ": " +instruction.toString());
+            //System.out.println(i + ": " +instruction.toString());
+            System.out.println(instruction.toString());
             i++;
         }
 

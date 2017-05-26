@@ -1,0 +1,28 @@
+int m;
+int result;
+int factorial()
+{
+    result=1;
+    if(m-result)
+    {
+        result=result*m;
+        m=m-1;
+    }
+    return (result);
+
+}
+void main()
+{
+    int a,b;
+    a=0;
+    if(1)
+    {
+        b=a;
+        printf(a);
+    }
+    else
+    {
+        a=b;
+    }
+    a=100;
+}

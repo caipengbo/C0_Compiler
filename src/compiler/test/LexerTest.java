@@ -17,7 +17,7 @@ public class LexerTest {
     @Test
     public void openFile() throws Exception {
         Lexer lexer = new Lexer();
-        lexer.openFile("src/compiler/test/test.c0"); //注意路径
+        lexer.openFile("src/compiler/test/factorial.txt"); //注意路径
         List<String> list = lexer.getSourceCodeLineList();
         for (String s: list) {
             System.out.println(s);
@@ -27,7 +27,7 @@ public class LexerTest {
     @Test
     public void getSymbol() throws Exception {
         Lexer lexer = new Lexer();
-        lexer.openFile("src/compiler/test/test.c0");
+        lexer.openFile("src/compiler/test/factorial.txt");
         Word word = new Word();
         while (word.getType()!= Symbol.endsym) {
             word = lexer.getWord();

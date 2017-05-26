@@ -13,7 +13,7 @@ import java.util.*;
 public class OtherTest {
     @Test
     public void test1() throws IOException {
-        File file = new File("src/compiler/test/test2.txt");
+        File file = new File("src/compiler/test/d.txt");
         BufferedReader bufferedReader;
         bufferedReader = new BufferedReader(new FileReader(file));
         String line;

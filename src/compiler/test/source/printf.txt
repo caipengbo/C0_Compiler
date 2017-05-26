@@ -1,0 +1,26 @@
+int a;
+int b,c;
+int fun()
+{
+    scanf(a);
+    if(a)
+    {
+        a=b;
+    }
+    else
+    {
+        printf(a);
+    }
+    return (a+b);
+}
+void fun2()
+{
+}
+void main()
+{
+    while(a)
+    {
+        printf(a+b);
+    }
+
+}

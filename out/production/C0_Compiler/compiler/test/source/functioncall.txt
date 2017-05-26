@@ -1,0 +1,13 @@
+int fun1()
+ {
+     return (1);
+ }
+ void fun2()
+ {
+     int c;
+     c=0;
+ }
+ void main()
+ {
+     fun1();
+ }

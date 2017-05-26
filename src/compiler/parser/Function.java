@@ -43,6 +43,10 @@ public class Function {
         return entryAddress;
     }
 
+    public boolean isHasReturn() {
+        return hasReturn;
+    }
+
     @Override
     public String toString() {
         return "Function{" +

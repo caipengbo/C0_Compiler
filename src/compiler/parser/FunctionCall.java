@@ -8,12 +8,30 @@ package compiler.parser;
 public class FunctionCall {
     private String functionName;
     private int callInstructionPosition = -1; //CAL 指令的位置，便于回填 函数入口
+    private int callSourcePosition = -1;
     private boolean wantReturnValue = false;
 
-    public FunctionCall(String functionName, int callInstructionPosition, boolean wantReturnValue) {
+    public FunctionCall(String functionName, int callInstructionPosition, boolean wantReturnValue, int callSourcePosition) {
         this.functionName = functionName;
         this.callInstructionPosition = callInstructionPosition;
         this.wantReturnValue = wantReturnValue;
+        this.callSourcePosition = callSourcePosition;
+    }
+
+    public String getFunctionName() {
+        return functionName;
+    }
+
+    public int getCallInstructionPosition() {
+        return callInstructionPosition;
+    }
+
+    public int getCallSourcePosition() {
+        return callSourcePosition;
+    }
+
+    public boolean isWantReturnValue() {
+        return wantReturnValue;
     }
 
     @Override
@@ -21,6 +39,7 @@ public class FunctionCall {
         return "FunctionCall{" +
                 "functionName='" + functionName + '\'' +
                 ", callInstructionPosition=" + callInstructionPosition +
+                ", callSourcePosition=" + callSourcePosition +
                 ", wantReturnValue=" + wantReturnValue +
                 '}';
     }

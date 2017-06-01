@@ -1,0 +1,24 @@
+int m;
+int factorial()
+{
+    int result;
+    result=1;
+    while(m)
+    {
+        result=result*m;
+        m=m-1;
+    }
+    return (result);
+}
+void main()
+{ 
+    int sum,n;
+    scanf(n);
+    sum = 0;
+    while(n){
+        m = n;
+	    sum = sum + factorial();
+        n = n - 1;
+    }
+    printf(sum);
+}

@@ -26,7 +26,7 @@ public class Wrong {
     }
     @Override
     public String toString() {
-        return "错误号" + no + ": " + position + " " +  info + "源码行：" + sourceLine;
-        //return "错误号" + no + ": " + info + " 位置：" + position + "源码行：" + sourceLine;
+        //return "错误号" + no + ": " + position + " " +  info + " 源码行：" + sourceLine;
+        return "错误号" + no + ": " + position + " " +  info;
     }
 }

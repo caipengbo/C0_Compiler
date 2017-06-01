@@ -8,7 +8,7 @@ package compiler.parser;
 public class FunctionCall {
     private String functionName;
     private int callInstructionPosition = -1; //CAL 指令的位置，便于回填 函数入口
-    private int callSourcePosition = -1;
+    private int callSourcePosition = -1;   //调用语句在源代码中的位置，用来指示错误位置
     private boolean wantReturnValue = false;
 
     public FunctionCall(String functionName, int callInstructionPosition, boolean wantReturnValue, int callSourcePosition) {

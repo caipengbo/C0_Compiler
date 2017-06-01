@@ -1,7 +1,7 @@
 package compiler.test;
 
 import compiler.common.Wrong;
-import compiler.interpret.Instruction;
+import compiler.interpreter.Instruction;
 import compiler.parser.Function;
 import compiler.parser.FunctionCall;
 import compiler.parser.ProgramParser;
@@ -44,6 +44,7 @@ public class ProgramParserTest {
         for (FunctionCall functionCall : functionCallList) {
             System.out.println(functionCall);
         }
+
         int i = 0;
         for (Instruction instruction : instructionList) {
             //System.out.println(i + ": " +instruction.toString());

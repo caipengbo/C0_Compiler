@@ -1,0 +1,18 @@
+int m;
+int factorial()
+{
+    int result;
+    result=1;
+    while(m)
+    {
+        result=result*m;
+        m=m-1;
+        }
+    return (result);
+
+}
+void main()
+{ 
+    scanf(m);
+    printf(factorial());
+}

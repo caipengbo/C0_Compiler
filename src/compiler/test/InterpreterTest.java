@@ -1,6 +1,6 @@
 package compiler.test;
 
-import compiler.interpret.Interpreter;
+import compiler.interpreter.Interpreter;
 import org.junit.Test;
 
 /**

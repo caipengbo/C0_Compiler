@@ -3,8 +3,8 @@ package compiler.parser;
 import compiler.common.Symbol;
 import compiler.common.Word;
 import compiler.common.Wrong;
-import compiler.interpret.Instruction;
-import compiler.interpret.InstructionType;
+import compiler.interpreter.Instruction;
+import compiler.interpreter.InstructionType;
 import compiler.lexer.Lexer;
 
 import java.util.ArrayList;
@@ -116,7 +116,7 @@ public class ProgramParser {
                             wrongList.add(new Wrong(lexer.getPosition(), 3, "缺少')'", 115));
                         } else {
                             int position = generateInstruction(InstructionType.CAL, 0, -1);
-                            FunctionCall functionCall = new FunctionCall(val, position,true, lexer.getLineNumber());
+                            FunctionCall functionCall = new FunctionCall(val, position,true, lexer.getLineNumber()+1);
                             functionCallList.add(functionCall);
                         }
                         word = lexer.getWord();

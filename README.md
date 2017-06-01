@@ -13,7 +13,8 @@ An easy compiler for customize language called c0 developed by Java.
 
 # Use #
 
-`java C0`
+`java Compile`
+`java Interpret`
 
 Input your c0 source file(**Guranteed your file in same directory**)
  
